@@ -55,7 +55,24 @@ const argv = yargs(hideBin(process.argv))
   .alias("help", "h")
   .parseSync();
 
+const validateParameters = () => {
+  if (!argv.wireguardPrivatekey && !argv.nordvpnAccountid) {
+    console.error(
+      "Error: A WireGuard private key or a NordVPN account ID is required."
+    );
+    process.exit(1);
+  }
+
+  if (!argv.country && !argv.allCountries) {
+    console.error(
+      "Error: Please provide a country code or use the --all-countries flag."
+    );
+    process.exit(1);
+  }
+};
+
 const main = async () => {
+  validateParameters();
   const a = argv;
 
   if (a.allCountries) {
@@ -66,10 +83,6 @@ const main = async () => {
   } else if (a.country) {
     const country = await getCountryByCode(a.country);
     await generateConfigsForCountry(country, argv);
-  } else {
-    console.log(
-      "Please provide either a country code or the --all-countries flag."
-    );
   }
 };
 
@@ -87,6 +100,10 @@ export const generateConfigsForCountry = async (
       dns_servers: [argv["dns-server"]],
     } as KeychainConfig;
   } else if (argv["nordvpn-accountid"]) {
+    console.log(
+      "no --pk specified, trying to extract from keychain with id ",
+      argv["nordvpn-accountid"]
+    );
     nordConfig = await extractNordConfig(argv["nordvpn-accountid"]);
   } else {
     console.log(

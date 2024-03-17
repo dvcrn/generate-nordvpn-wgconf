@@ -8,7 +8,7 @@ import { Country, KeychainConfig } from "./types";
 import { extractWireguardConfig, generateWireguardConfig } from "./configUtils";
 import {
   fetchNordCountries,
-  fetchRecommendedServer,
+  fetchRecommendedServers,
   getCountryByCode,
 } from "./api";
 import { extractNordConfig } from "./utils";
@@ -90,7 +90,7 @@ export const generateConfigsForCountry = async (
   country: Country,
   argv: any
 ) => {
-  console.log(`Generating configs for ${country.name}`);
+  console.log(`Generating ${argv.amount} configs for ${country.name}`);
 
   let nordConfig: KeychainConfig;
 
@@ -111,11 +111,14 @@ export const generateConfigsForCountry = async (
     );
     return;
   }
-  for (let i = 0; i < argv.amount; i++) {
+
+  const recommendedServers = await fetchRecommendedServers(
+    country.id.toString(),
+    argv.amount
+  );
+
+  recommendedServers.forEach((recommendedServer) => {
     try {
-      const recommendedServer = await fetchRecommendedServer(
-        country.id.toString()
-      );
       const extractedWgConfig = extractWireguardConfig(recommendedServer);
       const wgConfigString = generateWireguardConfig(
         nordConfig.private_key,
@@ -131,16 +134,15 @@ export const generateConfigsForCountry = async (
 
       const outPath = path.join(
         outputDir,
-        `${country.name}-nordvpn-${i + 1}.conf`
+        `NordVPN ${recommendedServer.name}.conf`
       );
       fs.writeFileSync(outPath, wgConfigString);
 
       console.log(`wrote config for ${country.name} at ${outPath}`);
     } catch (err) {
       console.log(err);
-      continue;
     }
-  }
+  });
 };
 
 main().catch(console.error);

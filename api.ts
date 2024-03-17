@@ -25,8 +25,13 @@ export const getCountryByCode = async (code: string): Promise<Country> => {
   const country = countries.find(
     (c) => c.code.toLowerCase() === code.toLowerCase()
   );
+
+  const countryCodes = countries.map((c) => c.code).join(", ");
+
   if (!country) {
-    throw new Error(`Country with code ${code} not found.`);
+    throw new Error(
+      `Country with code ${code} not found. Valid codes: ${countryCodes}`
+    );
   }
   return country;
 };

@@ -17,7 +17,8 @@ const argv = yargs(hideBin(process.argv))
   .option("country", {
     alias: "c",
     type: "string",
-    description: "Country code of the country to generate the config for",
+    description:
+      "Country code of the country to generate the config for, eg 'US'",
   })
   .option("wireguard-privatekey", {
     alias: "pk",

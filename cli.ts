@@ -1,26 +1,27 @@
 #!/usr/bin/env ts-node-script
 
 import fs from "fs";
-import keychain from "keychain";
 import path from "path";
 import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+import {hideBin} from "yargs/helpers";
 
-import { Country, KeychainConfig } from "./types";
-import { extractWireguardConfig, generateWireguardConfig } from "./configUtils";
-import {
-  fetchNordCountries,
-  fetchRecommendedServers,
-  getCountryByCode,
-} from "./api";
-import { extractNordConfig } from "./utils";
+import {Country, KeychainConfig} from "./types";
+import {extractWireguardConfig, generateWireguardConfig} from "./configUtils";
+import {fetchNordCountries, fetchRecommendedServers, getCountryByCode,} from "./api";
+import {extractNordConfig} from "./utils";
 
 const argv = yargs(hideBin(process.argv))
   .option("country", {
     alias: "c",
     type: "string",
     description:
-      "Country code of the country to generate the config for, eg 'US'",
+      "Country code(s) of the countries to generate the config for, e.g., 'US,UK,JP'",
+    coerce: (arg: string | string[]) => { // Custom parser for comma-separated values
+      if (typeof arg === 'string') {
+        return arg.split(',').map(s => s.trim());
+      }
+      return arg;
+    },
   })
   .option("wireguard-privatekey", {
     alias: "pk",
@@ -87,12 +88,14 @@ const main = async () => {
         console.error(err);
       }
     }
-  } else if (a.country) {
-    const country = await getCountryByCode(a.country);
-    try {
-      await generateConfigsForCountry(country, argv);
-    } catch (err) {
-      console.error(err);
+  }  else if (a.country && a.country.length) {
+    for (const countryCode of a.country) { // Iterate over each country code
+      try {
+        const country = await getCountryByCode(countryCode);
+        await generateConfigsForCountry(country, argv);
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 };
@@ -140,7 +143,7 @@ export const generateConfigsForCountry = async (
 
       const outputDir = path.resolve(argv.outdir);
       if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+        fs.mkdirSync(outputDir, {recursive: true});
       }
 
       const outPath = path.join(

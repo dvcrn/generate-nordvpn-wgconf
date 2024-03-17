@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node-script
+
 import fs from "fs";
 import keychain from "keychain";
 import path from "path";

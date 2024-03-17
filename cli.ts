@@ -81,11 +81,19 @@ const main = async () => {
   if (a.allCountries) {
     const countries = await fetchNordCountries();
     for (const country of countries) {
-      await generateConfigsForCountry(country, argv);
+      try {
+        await generateConfigsForCountry(country, argv);
+      } catch (err) {
+        console.error(err);
+      }
     }
   } else if (a.country) {
     const country = await getCountryByCode(a.country);
-    await generateConfigsForCountry(country, argv);
+    try {
+      await generateConfigsForCountry(country, argv);
+    } catch (err) {
+      console.error(err);
+    }
   }
 };
 

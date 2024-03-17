@@ -4,18 +4,28 @@
     "type": "git",
     "url": "https://github.com/dvcrn/generate-nordvpn-wgconf"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "dependencies": {
+    "keychain": "^1.5.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
     "@types/keychain": "^1.4.4",
     "@types/node": "^20.11.28",
     "@types/yargs": "^17.0.32",
-    "keychain": "^1.5.0",
+    "esbuild": "^0.20.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.2",
-    "yargs": "^17.7.2"
+    "typescript": "^5.4.2"
   },
   "license": "MIT",
   "bin": {
-    "generate-nordvpn-wgconf": "./bootstrap.js"
-  }
+    "generate-nordvpn-wgconf": "./out/cli.js"
+  },
+  "scripts": {
+    "build": "esbuild cli.ts --bundle --outfile=out/cli.js --platform=node",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "out"
+  ]
 }

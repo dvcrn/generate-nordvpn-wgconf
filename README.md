@@ -9,7 +9,7 @@ This tool automates extracting of the NordVPN WireGuard privatekey from keychain
 ### Installation
 
 ```
-npm install -g generate-nordvpn-wgconf
+npx generate-nordvpn-wgconf
 ```
 
 ### Usage

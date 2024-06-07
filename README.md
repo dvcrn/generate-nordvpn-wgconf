@@ -21,6 +21,15 @@ You have to either specify your **NordVPN WireGuard privatekey** (if you know it
 - If `--pk` is specified, it will just use that and no macOS specific functionality is used
 - If `--nordvpn-accountid` is specified, it will do a keychain lookup to find your NordVPN credentials, to extract the privatekey.
 
+```
+❯ generate-nordvpn-wireguard --nordvpn-accountid XXXXXX --outdir . --country JP --amount 3
+Generating 3 configs for Japan
+no --pk specified, trying to extract from keychain with id  XXXXXX
+wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #673.conf
+wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #517.conf
+wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #754.conf
+```
+
 #### How to automatically extract privatekey on macOS?
 
 **Read carefully, otherwise it won't work.**

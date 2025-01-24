@@ -1,14 +1,18 @@
-#!/usr/bin/env ts-node-script
+#!/usr/bin/env node
 
 import fs from "fs";
 import path from "path";
 import yargs from "yargs";
-import {hideBin} from "yargs/helpers";
+import { hideBin } from "yargs/helpers";
 
-import {Country, KeychainConfig} from "./types";
-import {extractWireguardConfig, generateWireguardConfig} from "./configUtils";
-import {fetchNordCountries, fetchRecommendedServers, getCountryByCode,} from "./api";
-import {extractNordConfig} from "./utils";
+import { Country, KeychainConfig } from "./types";
+import { extractWireguardConfig, generateWireguardConfig } from "./configUtils";
+import {
+  fetchNordCountries,
+  fetchRecommendedServers,
+  getCountryByCode,
+} from "./api";
+import { extractNordConfig } from "./utils";
 
 const argv = yargs(hideBin(process.argv))
   .option("country", {
@@ -16,9 +20,10 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     description:
       "Country code(s) of the countries to generate the config for, e.g., 'US,UK,JP'",
-    coerce: (arg: string | string[]) => { // Custom parser for comma-separated values
-      if (typeof arg === 'string') {
-        return arg.split(',').map(s => s.trim());
+    coerce: (arg: string | string[]) => {
+      // Custom parser for comma-separated values
+      if (typeof arg === "string") {
+        return arg.split(",").map((s) => s.trim());
       }
       return arg;
     },
@@ -62,14 +67,14 @@ const argv = yargs(hideBin(process.argv))
 const validateParameters = () => {
   if (!argv.wireguardPrivatekey && !argv.nordvpnAccountid) {
     console.error(
-      "Error: A WireGuard private key or a NordVPN account ID is required."
+      "Error: A WireGuard private key or a NordVPN account ID is required.",
     );
     process.exit(1);
   }
 
   if (!argv.country && !argv.allCountries) {
     console.error(
-      "Error: Please provide a country code or use the --all-countries flag."
+      "Error: Please provide a country code or use the --all-countries flag.",
     );
     process.exit(1);
   }
@@ -88,8 +93,9 @@ const main = async () => {
         console.error(err);
       }
     }
-  }  else if (a.country && a.country.length) {
-    for (const countryCode of a.country) { // Iterate over each country code
+  } else if (a.country && a.country.length) {
+    for (const countryCode of a.country) {
+      // Iterate over each country code
       try {
         const country = await getCountryByCode(countryCode);
         await generateConfigsForCountry(country, argv);
@@ -102,7 +108,7 @@ const main = async () => {
 
 export const generateConfigsForCountry = async (
   country: Country,
-  argv: any
+  argv: any,
 ) => {
   console.log(`Generating ${argv.amount} configs for ${country.name}`);
 
@@ -116,19 +122,19 @@ export const generateConfigsForCountry = async (
   } else if (argv["nordvpn-accountid"]) {
     console.log(
       "no --pk specified, trying to extract from keychain with id ",
-      argv["nordvpn-accountid"]
+      argv["nordvpn-accountid"],
     );
     nordConfig = await extractNordConfig(argv["nordvpn-accountid"]);
   } else {
     console.log(
-      "Please provide either a WireGuard private key or a NordVPN account ID."
+      "Please provide either a WireGuard private key or a NordVPN account ID.",
     );
     return;
   }
 
   const recommendedServers = await fetchRecommendedServers(
     country.id.toString(),
-    argv.amount
+    argv.amount,
   );
 
   recommendedServers.forEach((recommendedServer) => {
@@ -138,17 +144,17 @@ export const generateConfigsForCountry = async (
         nordConfig.private_key,
         extractedWgConfig.publicKey,
         nordConfig.dns_servers[0],
-        extractedWgConfig.endpoint + ":51820"
+        extractedWgConfig.endpoint + ":51820",
       );
 
       const outputDir = path.resolve(argv.outdir);
       if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, {recursive: true});
+        fs.mkdirSync(outputDir, { recursive: true });
       }
 
       const outPath = path.join(
         outputDir,
-        `NordVPN ${recommendedServer.name}.conf`
+        `NordVPN ${recommendedServer.name}.conf`,
       );
       fs.writeFileSync(outPath, wgConfigString);
 

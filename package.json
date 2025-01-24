@@ -2,7 +2,7 @@
   "name": "generate-nordvpn-wgconf",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dvcrn/generate-nordvpn-wgconf"
+    "url": "git+https://github.com/dvcrn/generate-nordvpn-wgconf.git"
   },
   "version": "1.1.1",
   "dependencies": {
@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "bin": {
-    "generate-nordvpn-wgconf": "./out/cli.js"
+    "generate-nordvpn-wgconf": "out/cli.js"
   },
   "scripts": {
     "build": "esbuild cli.ts --bundle --outfile=out/cli.js --platform=node",

@@ -12,9 +12,27 @@ This tool automates extracting of the NordVPN WireGuard privatekey from keychain
 npx generate-nordvpn-wgconf
 ```
 
+or
+
+```
+npm install -g generate-nordvpn-wgconf
+```
+
 ### Usage
 
-Generate configurations using the command-line interface. The tool supports several options for customization:
+```
+npx generate-nordvpn-wgconf --nordvpn-accountid yyy --outdir . --country TH,JP --amount 2
+
+Generating 3 configs for Thailand
+no --pk specified, trying to extract from keychain with id  xxx
+wrote config for Thailand at NordVPN Thailand #28.conf
+wrote config for Thailand at NordVPN Thailand #33.conf
+
+Generating 3 configs for Japan
+no --pk specified, trying to extract from keychain with id  xxx
+wrote config for Japan at NordVPN Japan #690.conf
+wrote config for Japan at NordVPN Japan #533.conf
+```
 
 You have to either specify your **NordVPN WireGuard privatekey** (if you know it already), or specify your **NordVPN AccountID**, get it from https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/
 
@@ -22,7 +40,7 @@ You have to either specify your **NordVPN WireGuard privatekey** (if you know it
 - If `--nordvpn-accountid` is specified, it will do a keychain lookup to find your NordVPN credentials, to extract the privatekey.
 
 ```
-❯ generate-nordvpn-wireguard --nordvpn-accountid XXXXXX --outdir . --country JP --amount 3
+❯ npx generate-nordvpn-wgconf --nordvpn-accountid XXXXXX --outdir . --country JP --amount 3
 Generating 3 configs for Japan
 no --pk specified, trying to extract from keychain with id  XXXXXX
 wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #673.conf
@@ -55,7 +73,7 @@ After doing that, NordVPN will store the NordLynx (WireGuard) credentials in key
 To generate a configuration for a specific country with your WireGuard private key:
 
 ```bash
-node index.js --country US --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
+npx generate-nordvpn-wgconf --country US --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
 ```
 
 #### Generating Multiple Configurations
@@ -63,7 +81,7 @@ node index.js --country US --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /pat
 To generate multiple configurations for a specific country:
 
 ```bash
-node index.js --country US --wireguard-privatekey YOUR_PRIVATE_KEY --amount 5 --outdir /path/to/output/dir
+npx generate-nordvpn-wgconf --country US --wireguard-privatekey YOUR_PRIVATE_KEY --amount 5 --outdir /path/to/output/dir
 ```
 
 #### Generating Configurations for All Countries
@@ -71,7 +89,7 @@ node index.js --country US --wireguard-privatekey YOUR_PRIVATE_KEY --amount 5 --
 To generate configurations for all available countries:
 
 ```bash
-node index.js --all-countries --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
+npx generate-nordvpn-wgconf --all-countries --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
 ```
 
 #### Generating Configurations for 2 Countries
@@ -79,7 +97,7 @@ node index.js --all-countries --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /
 To generate configurations for all available countries:
 
 ```bash
-node index.js --country JP,DE --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
+npx generate-nordvpn-wgconf --country JP,DE --wireguard-privatekey YOUR_PRIVATE_KEY --outdir /path/to/output/dir
 ```
 
 ### Contributing

@@ -12,7 +12,7 @@ import {
   fetchRecommendedServers,
   getCountryByCode,
 } from "./api";
-import { extractNordConfig } from "./utils";
+import { extractNordConfig, findNordAccountIds } from "./utils";
 
 const argv = yargs(hideBin(process.argv))
   .option("country", {
@@ -36,7 +36,8 @@ const argv = yargs(hideBin(process.argv))
   .option("nordvpn-accountid", {
     alias: "id",
     type: "string",
-    description: "NordVPN account ID (required if private key is not provided)",
+    description:
+      "NordVPN account ID used for the keychain lookup (auto-detected from keychain if omitted)",
   })
   .option("dns-server", {
     alias: "dns",
@@ -65,13 +66,6 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 const validateParameters = () => {
-  if (!argv.wireguardPrivatekey && !argv.nordvpnAccountid) {
-    console.error(
-      "Error: A WireGuard private key or a NordVPN account ID is required.",
-    );
-    process.exit(1);
-  }
-
   if (!argv.country && !argv.allCountries) {
     console.error(
       "Error: Please provide a country code or use the --all-countries flag.",
@@ -80,15 +74,64 @@ const validateParameters = () => {
   }
 };
 
+const resolveAccountId = async (): Promise<string> => {
+  if (argv.nordvpnAccountid) {
+    return argv.nordvpnAccountid;
+  }
+
+  console.log("no --pk or --id specified, searching keychain for NordVPN account");
+  let ids: string[];
+  try {
+    ids = await findNordAccountIds();
+  } catch (err) {
+    throw new Error(`Failed to search keychain: ${err}`);
+  }
+
+  if (ids.length === 0) {
+    throw new Error(
+      "No NordVPN configuration found in keychain. Provide --wireguard-privatekey or --nordvpn-accountid.",
+    );
+  }
+  if (ids.length > 1) {
+    throw new Error(
+      `Multiple NordVPN accounts found in keychain (${ids.join(", ")}). Pick one with --nordvpn-accountid.`,
+    );
+  }
+
+  console.log("found NordVPN account", ids[0]);
+  return ids[0];
+};
+
+const resolveNordConfig = async (): Promise<KeychainConfig> => {
+  if (argv.wireguardPrivatekey) {
+    return {
+      private_key: argv.wireguardPrivatekey,
+      dns_servers: [argv.dnsServer],
+    } as KeychainConfig;
+  }
+
+  const accountId = await resolveAccountId();
+  console.log("extracting private key from keychain for account", accountId);
+  return extractNordConfig(accountId);
+};
+
 const main = async () => {
   validateParameters();
   const a = argv;
+
+  let nordConfig: KeychainConfig;
+  try {
+    nordConfig = await resolveNordConfig();
+  } catch (err) {
+    console.error(`Error: ${err instanceof Error ? err.message : err}`);
+    process.exit(1);
+  }
 
   if (a.allCountries) {
     const countries = await fetchNordCountries();
     for (const country of countries) {
       try {
-        await generateConfigsForCountry(country, argv);
+        await generateConfigsForCountry(country, nordConfig, argv);
       } catch (err) {
         console.error(err);
       }
@@ -98,7 +141,7 @@ const main = async () => {
       // Iterate over each country code
       try {
         const country = await getCountryByCode(countryCode);
-        await generateConfigsForCountry(country, argv);
+        await generateConfigsForCountry(country, nordConfig, argv);
       } catch (err) {
         console.error(err);
       }
@@ -108,29 +151,10 @@ const main = async () => {
 
 export const generateConfigsForCountry = async (
   country: Country,
+  nordConfig: KeychainConfig,
   argv: any,
 ) => {
   console.log(`Generating ${argv.amount} configs for ${country.name}`);
-
-  let nordConfig: KeychainConfig;
-
-  if (argv["wireguard-privatekey"]) {
-    nordConfig = {
-      private_key: argv["wireguard-privatekey"],
-      dns_servers: [argv["dns-server"]],
-    } as KeychainConfig;
-  } else if (argv["nordvpn-accountid"]) {
-    console.log(
-      "no --pk specified, trying to extract from keychain with id ",
-      argv["nordvpn-accountid"],
-    );
-    nordConfig = await extractNordConfig(argv["nordvpn-accountid"]);
-  } else {
-    console.log(
-      "Please provide either a WireGuard private key or a NordVPN account ID.",
-    );
-    return;
-  }
 
   const recommendedServers = await fetchRecommendedServers(
     country.id.toString(),

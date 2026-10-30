@@ -38,6 +38,7 @@ You have to either specify your **NordVPN WireGuard privatekey** (if you know it
 
 - If `--pk` is specified, it will just use that and no macOS specific functionality is used
 - If `--nordvpn-accountid` is specified, it will do a keychain lookup to find your NordVPN credentials, to extract the privatekey.
+- If neither is specified, it searches the keychain for the NordVPN configuration entry and uses its account ID automatically. If multiple accounts are found, pass `--nordvpn-accountid` to pick one.
 
 ```
 ❯ npx generate-nordvpn-wgconf --nordvpn-accountid XXXXXX --outdir . --country JP --amount 3
@@ -62,7 +63,7 @@ After doing that, NordVPN will store the NordLynx (WireGuard) credentials in key
 
 - `--country`, `-c`: Specify the country code(s) (ISO 3166-1 alpha-2 code) for which to generate the configuration. For example, `US` for the United States. `DE,JP` for Germany and Japan.
 - `--wireguard-privatekey`, `-pk`: Your WireGuard private key. This is required unless using `--nordvpn-accountid`.
-- `--nordvpn-accountid`, `-id`: Your NordVPN account ID. Required if you do not provide a WireGuard private key.
+- `--nordvpn-accountid`, `-id`: Your NordVPN account ID. Optional; auto-detected from keychain when neither this nor a private key is given.
 - `--dns-server`, `-dns`: Specify the DNS server to use in the configuration. Defaults to `103.86.96.100`.
 - `--amount`, `-a`: The number of configurations to generate for the specified country. Defaults to `1`.
 - `--all-countries`: Generate configurations for all available countries.

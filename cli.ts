@@ -13,6 +13,7 @@ import {
   getCountryByCode,
 } from "./api";
 import { extractNordConfig, findNordAccountIds } from "./utils";
+import { fetchServiceCredentials } from "./nordvpn";
 
 const argv = yargs(hideBin(process.argv))
   .option("country", {
@@ -32,6 +33,12 @@ const argv = yargs(hideBin(process.argv))
     alias: "pk",
     type: "string",
     description: "WireGuard private key",
+  })
+  .option("token", {
+    alias: "t",
+    type: "string",
+    description:
+      "NordVPN access token used to fetch the private key from the NordVPN API (defaults to $NORDVPN_TOKEN)",
   })
   .option("nordvpn-accountid", {
     alias: "id",
@@ -79,7 +86,9 @@ const resolveAccountId = async (): Promise<string> => {
     return argv.nordvpnAccountid;
   }
 
-  console.log("no --pk or --id specified, searching keychain for NordVPN account");
+  console.log(
+    "no --pk, --token or --id specified, searching keychain for NordVPN account",
+  );
   let ids: string[];
   try {
     ids = await findNordAccountIds();
@@ -89,7 +98,7 @@ const resolveAccountId = async (): Promise<string> => {
 
   if (ids.length === 0) {
     throw new Error(
-      "No NordVPN configuration found in keychain. Provide --wireguard-privatekey or --nordvpn-accountid.",
+      "No NordVPN configuration found in keychain. Provide --wireguard-privatekey, --token or --nordvpn-accountid.",
     );
   }
   if (ids.length > 1) {
@@ -106,6 +115,16 @@ const resolveNordConfig = async (): Promise<KeychainConfig> => {
   if (argv.wireguardPrivatekey) {
     return {
       private_key: argv.wireguardPrivatekey,
+      dns_servers: [argv.dnsServer],
+    } as KeychainConfig;
+  }
+
+  const token = argv.token || process.env.NORDVPN_TOKEN;
+  if (token) {
+    console.log("fetching private key from NordVPN API with access token");
+    const credentials = await fetchServiceCredentials(token);
+    return {
+      private_key: credentials.nordlynx_private_key,
       dns_servers: [argv.dnsServer],
     } as KeychainConfig;
   }

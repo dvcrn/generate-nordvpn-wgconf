@@ -8,6 +8,15 @@ export type KeychainConfig = {
   private_key: string;
 };
 
+export type ServiceCredentials = {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  username: string;
+  password: string;
+  nordlynx_private_key: string;
+};
+
 export interface Server {
   id: number;
   created_at: string;

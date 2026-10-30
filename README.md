@@ -34,9 +34,10 @@ wrote config for Japan at NordVPN Japan #690.conf
 wrote config for Japan at NordVPN Japan #533.conf
 ```
 
-You have to either specify your **NordVPN WireGuard privatekey** (if you know it already), or specify your **NordVPN AccountID**, get it from https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/
+You have to either specify your **NordVPN WireGuard privatekey** (if you know it already), a **NordVPN access token**, or specify your **NordVPN AccountID**, get it from https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/
 
 - If `--pk` is specified, it will just use that and no macOS specific functionality is used
+- If `--token` (or the `NORDVPN_TOKEN` env var) is specified, the privatekey is fetched from the NordVPN API. This works on any OS and doesn't need the NordVPN app. Create a token at https://my.nordaccount.com/dashboard/nordvpn/access-tokens/
 - If `--nordvpn-accountid` is specified, it will do a keychain lookup to find your NordVPN credentials, to extract the privatekey.
 - If neither is specified, it searches the keychain for the NordVPN configuration entry and uses its account ID automatically. If multiple accounts are found, pass `--nordvpn-accountid` to pick one.
 
@@ -62,7 +63,8 @@ After doing that, NordVPN will store the NordLynx (WireGuard) credentials in key
 #### Options
 
 - `--country`, `-c`: Specify the country code(s) (ISO 3166-1 alpha-2 code) for which to generate the configuration. For example, `US` for the United States. `DE,JP` for Germany and Japan.
-- `--wireguard-privatekey`, `-pk`: Your WireGuard private key. This is required unless using `--nordvpn-accountid`.
+- `--wireguard-privatekey`, `-pk`: Your WireGuard private key.
+- `--token`, `-t`: NordVPN access token, used to fetch the private key from the NordVPN API. Defaults to the `NORDVPN_TOKEN` env var.
 - `--nordvpn-accountid`, `-id`: Your NordVPN account ID. Optional; auto-detected from keychain when neither this nor a private key is given.
 - `--dns-server`, `-dns`: Specify the DNS server to use in the configuration. Defaults to `103.86.96.100`.
 - `--amount`, `-a`: The number of configurations to generate for the specified country. Defaults to `1`.

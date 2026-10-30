@@ -32,7 +32,7 @@ Then
 npx generate-nordvpn-wgconf --outdir . --country TH,JP --amount 2
 ```
 
-If automatic detection doesn't work, specify your accountid (get it from https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/)
+If multiple NordVPN accounts are found in keychain, pick one with `--nordvpn-accountid` (the tool lists the IDs it found)
 
 ```
 npx generate-nordvpn-wgconf --nordvpn-accountid yyy --outdir . --country TH,JP --amount 2
@@ -62,9 +62,10 @@ npx generate-nordvpn-wgconf --pk yyy --outdir . --country TH,JP --amount 2
 ### Usage
 
 ```
-❯ npx generate-nordvpn-wgconf --nordvpn-accountid XXXXXX --outdir . --country JP --amount 3
+❯ npx generate-nordvpn-wgconf --outdir . --country JP --amount 3
+no --pk, --token or --id specified, searching keychain for NordVPN account
+extracting private key from keychain for account XXXXXX
 Generating 3 configs for Japan
-no --pk specified, trying to extract from keychain with id XXXXXX
 wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #673.conf
 wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #517.conf
 wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #754.conf
@@ -73,10 +74,10 @@ wrote config for Japan at /tmp/NordVPN Wireguard/NordVPN Japan #754.conf
 #### Options
 
 - `--country`, `-c`: Specify the country code(s) (ISO 3166-1 alpha-2 code) for which to generate the configuration. For example, `US` for the United States. `DE,JP` for Germany and Japan.
-- `--wireguard-privatekey`, `-pk`: Your WireGuard private key.
+- `--wireguard-privatekey`, `--pk`: Your WireGuard private key.
 - `--token`, `-t`: NordVPN access token, used to fetch the private key from the NordVPN API. Defaults to the `NORDVPN_TOKEN` env var.
-- `--nordvpn-accountid`, `-id`: Your NordVPN account ID. Optional; auto-detected from keychain when neither this nor a private key is given.
-- `--dns-server`, `-dns`: Specify the DNS server to use in the configuration. Defaults to `103.86.96.100`.
+- `--nordvpn-accountid`, `--id`: Account ID of the NordVPN keychain entry. Only needed if the keychain has more than one NordVPN account.
+- `--dns-server`, `--dns`: Specify the DNS server to use in the configuration. Defaults to `103.86.96.100`.
 - `--amount`, `-a`: The number of configurations to generate for the specified country. Defaults to `1`.
 - `--all-countries`: Generate configurations for all available countries.
 - `--outdir`, `-o`: The output directory for the generated configuration files. Defaults to the current working directory.

@@ -18,6 +18,19 @@ npm install -g generate-nordvpn-wgconf
 
 There are 3 ways to use this:
 
+#### Automated private key extraction through NordVPN API
+
+1. Go to https://my.nordaccount.com/dashboard/nordvpn/access-tokens/
+2. Click "Generate Access Token" and write it down
+
+Then
+
+```
+npx generate-nordvpn-wgconf --token yyy --outdir . --country TH,JP --amount 2
+```
+
+You can also use `NORDVPN_TOKEN`
+
 #### Automated keychain extraction (macOS)
 
 1. Install NordVPN **from the Mac AppStore**, not directly from the website or brew
@@ -37,19 +50,6 @@ If multiple NordVPN accounts are found in keychain, pick one with `--nordvpn-acc
 ```
 npx generate-nordvpn-wgconf --nordvpn-accountid yyy --outdir . --country TH,JP --amount 2
 ```
-
-#### Automated private key extraction through NordVPN API
-
-1. Go to https://my.nordaccount.com/dashboard/nordvpn/access-tokens/
-2. Click "Generate Access Token" and write it down
-
-Then
-
-```
-npx generate-nordvpn-wgconf --token yyy --outdir . --country TH,JP --amount 2
-```
-
-You can also use `NORDVPN_TOKEN`
 
 #### Manual specifying of private key
 

@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "esbuild cli.ts --bundle --outfile=out/cli.js --platform=node",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "out"
